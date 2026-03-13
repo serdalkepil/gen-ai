@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedrock Prompt Templates Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --surface: #111820;
+      --border: #1e2d3d;
+      --accent: #00d4ff;
+      --accent2: #f59e0b;
+      --text: #cdd9e5;
+      --muted: #5c7a96;
+      --success: #22c55e;
+      --error: #ef4444;
+      --tag-bg: #0d1f2d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #00d4ff22, #00d4ff44);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .logo-text h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .logo-text p {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-accent { background: rgba(0, 212, 255, 0.1); color: var(--accent); border: 1px solid rgba(0, 212, 255, 0.2); }
+    .badge-success { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.2); }
+    .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent2); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 8px 18px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      user-select: none;
+    }
+
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.01);
+    }
+
+    .card-header h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-body { padding: 18px; }
+
+    /* Layout */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Form controls */
+    label {
+      display: block;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.08);
+    }
+
+    select option { background: #111820; }
+
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 18px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+    .btn-primary:hover { background: #33ddff; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,212,255,0.25); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+    .btn-sm { padding: 5px 11px; font-size: 11px; }
+
+    /* Variable tags */
+    .var-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 3px;
+      color: var(--accent2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      margin: 2px;
+    }
+
+    /* Template preview */
+    .template-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 80px;
+      color: var(--text);
+    }
+
+    .template-preview .highlight { color: var(--accent2); background: rgba(245,158,11,0.08); border-radius: 2px; }
+
+    /* Template list */
+    .template-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .template-item:hover { border-color: var(--accent); background: rgba(0,212,255,0.02); }
+    .template-item.selected { border-color: var(--accent); background: rgba(0,212,255,0.04); }
+
+    .template-item-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .template-item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .template-item-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Output section */
+    .output-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 16px;
+      min-height: 120px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text);
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    .output-box .placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Loading */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,212,255,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Notification */
+    .notif {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      padding: 12px 18px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideUp 0.3s ease;
+      opacity: 1;
+      transition: opacity 0.4s;
+    }
+    .notif.success { background: #0d2d1a; border: 1px solid #22c55e; color: var(--success); }
+    .notif.error { background: #2d0d0d; border: 1px solid var(--error); color: var(--error); }
+    .notif.hide { opacity: 0; }
+    @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .stat { flex: 1; text-align: center; }
+    .stat-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    .section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+
+    .flex { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .mt-3 { margin-top: 12px; }
+    .mt-4 { margin-top: 18px; }
+
+    /* JSON view */
+    .json-block {
+      background: #080c10;
+      border: 1px solid #1a2535;
+      border-radius: 5px;
+      padding: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+
+    .j-key { color: #79aaff; }
+    .j-str { color: #a8ff78; }
+    .j-num { color: var(--accent2); }
+    .j-bool { color: #ff79c6; }
+    .j-null { color: var(--muted); }
+
+    /* Info box */
+    .info-box {
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .info-box strong { color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+    /* Select dropdown */
+    select { appearance: none; cursor: pointer; }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-icon { font-size: 28px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">BR</div>
+      <div class="logo-text">
+        <h1>Bedrock Prompt Templates</h1>
+        <p>AWS Generative AI · Local Demo</p>
+      </div>
+    </div>
+    <div class="flex gap-2 items-center">
+      <span class="badge badge-success">● Connected</span>
+      <span class="badge badge-accent">v1.0.0</span>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat">
+      <span class="stat-val" id="statCount">3</span>
+      <span class="stat-lbl">Templates</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val" id="statVars">7</span>
+      <span class="stat-lbl">Variables</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val" id="statRuns">0</span>
+      <span class="stat-lbl">Executions</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">claude-3</span>
+      <span class="stat-lbl">Model</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('library')">Library</div>
+    <div class="tab" onclick="switchTab('builder')">Template Builder</div>
+    <div class="tab" onclick="switchTab('runner')">Test Runner</div>
+    <div class="tab" onclick="switchTab('api')">API View</div>
+  </div>
+
+  <!-- TAB: Library -->
+  <div id="tab-library" class="tab-panel active">
+    <div class="grid-2" style="align-items: start;">
+
+      <!-- Template List -->
+      <div>
+        <div class="flex justify-between items-center mb-3" style="margin-bottom:12px;">
+          <p class="section-title">Saved Templates</p>
+          <button class="btn btn-primary btn-sm" onclick="switchTab('builder')">+ New</button>
+        </div>
+        <div id="templateList"></div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div id="templateDetail">
+        <div class="empty">
+          <div class="empty-icon">📄</div>
+          <p>Select a template to view details</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: Builder -->
+  <div id="tab-builder" class="tab-panel">
+    <div class="grid-2" style="align-items: start;">
+
+      <!-- Form -->
+      <div class="card">
+        <div class="card-header"><h2>New Template</h2><span class="badge badge-accent">Builder</span></div>
+        <div class="card-body">
+          <div class="field">
+            <label>Template Name</label>
+            <input id="bName" type="text" placeholder="e.g. Summarize Article" />
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <input id="bDesc" type="text" placeholder="What does this template do?" />
+          </div>
+          <div class="field">
+            <label>Model</label>
+            <select id="bModel">
+              <option value="anthropic.claude-3-sonnet-20240229-v1:0">Claude 3 Sonnet</option>
+              <option value="anthropic.claude-3-haiku-20240307-v1:0">Claude 3 Haiku</option>
+              <option value="anthropic.claude-3-opus-20240229-v1:0">Claude 3 Opus</option>
+              <option value="amazon.titan-text-express-v1">Amazon Titan Express</option>
+              <option value="ai21.j2-ultra-v1">AI21 Jurassic-2 Ultra</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>System Prompt <span style="color:var(--muted)">(optional)</span></label>
+            <textarea id="bSystem" rows="2" placeholder="You are a helpful assistant..."></textarea>
+          </div>
+          <div class="field">
+            <label>Prompt Template <span style="color:var(--accent2)">· use &#123;&#123;variable&#125;&#125; syntax</span></label>
+            <textarea id="bPrompt" rows="5" placeholder="Summarize the following article about {{topic}}:
+
+{{article_text}}
+
+Provide a {{length}} summary." oninput="updatePreview()"></textarea>
+          </div>
+
+          <div class="info-box mt-3">
+            <strong>TIP</strong> — Use <code style="color:var(--accent2)">&#123;&#123;variable_name&#125;&#125;</code> for dynamic inputs. Variables are detected automatically.
+          </div>
+
+          <div class="flex gap-2 mt-4" style="margin-top:16px;">
+            <button class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+            <button class="btn btn-secondary" onclick="clearBuilder()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="flex-col gap-3">
+        <div class="card">
+          <div class="card-header"><h2>Detected Variables</h2></div>
+          <div class="card-body">
+            <div id="detectedVars"><p class="placeholder" style="color:var(--muted);font-size:12px;">Start typing your template to detect variables...</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Template Preview</h2></div>
+          <div class="card-body">
+            <div class="template-preview" id="livePreview"><span class="placeholder" style="color:var(--muted)">Your prompt will appear here...</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Configuration</h2></div>
+          <div class="card-body">
+            <div class="grid-2">
+              <div class="field">
+                <label>Max Tokens</label>
+                <input type="number" id="bMaxTokens" value="1000" min="1" max="4096" />
+              </div>
+              <div class="field">
+                <label>Temperature</label>
+                <input type="number" id="bTemp" value="0.7" min="0" max="1" step="0.1" />
+              </div>
+              <div class="field">
+                <label>Top P</label>
+                <input type="number" id="bTopP" value="0.9" min="0" max="1" step="0.1" />
+              </div>
+              <div class="field">
+                <label>Top K</label>
+                <input type="number" id="bTopK" value="250" min="0" max="500" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: Runner -->
+  <div id="tab-runner" class="tab-panel">
+    <div class="grid-2" style="align-items: start;">
+
+      <!-- Inputs -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Run Template</h2>
+          <select id="runSelect" style="width:auto;" onchange="loadRunTemplate()">
+            <option value="">Select template...</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div id="runVarFields">
+            <div class="empty">
+              <div class="empty-icon">⚡</div>
+              <p>Select a template above to fill in variables</p>
+            </div>
+          </div>
+          <div class="mt-4" style="margin-top:16px;">
+            <button class="btn btn-primary" id="runBtn" onclick="runTemplate()" disabled>
+              <span id="runBtnIcon">▶</span> Execute
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="flex-col gap-3">
+        <div class="card">
+          <div class="card-header"><h2>Resolved Prompt</h2><span id="resolvedBadge" class="badge badge-warning" style="display:none">Preview</span></div>
+          <div class="card-body">
+            <div class="template-preview" id="resolvedPrompt"><span style="color:var(--muted)">Resolved prompt will appear here...</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>Model Output</h2>
+            <span id="runStatus" class="badge badge-accent" style="display:none">Running...</span>
+          </div>
+          <div class="card-body">
+            <div class="output-box" id="outputBox"><span class="placeholder">Output will appear after execution...</span></div>
+            <div id="runMeta" style="margin-top:12px;display:none;">
+              <div class="flex gap-2 items-center">
+                <span class="badge badge-success">✓ Complete</span>
+                <span id="runMetaText" style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: API View -->
+  <div id="tab-api" class="tab-panel">
+    <div class="flex justify-between items-center" style="margin-bottom:16px;">
+      <p class="section-title">API Request/Response Preview</p>
+      <select id="apiSelect" style="width:auto;" onchange="updateApiView()">
+        <option value="">Select template...</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div>
+        <p class="section-title">SDK Request (Python)</p>
+        <div class="json-block" id="apiPython" style="font-size:11px;line-height:1.8;">Select a template to see the API request.</div>
+      </div>
+      <div>
+        <p class="section-title">Bedrock Converse API (JSON)</p>
+        <div class="json-block" id="apiJson">Select a template to see the JSON payload.</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <p class="section-title">Expected Response Shape</p>
+      <div class="json-block" id="apiResponse" style="font-size:11px;">
+<span class="j-key">"output"</span>: {
+  <span class="j-key">"message"</span>: {
+    <span class="j-key">"role"</span>: <span class="j-str">"assistant"</span>,
+    <span class="j-key">"content"</span>: [
+      {
+        <span class="j-key">"text"</span>: <span class="j-str">"&lt;model response here&gt;"</span>
+      }
+    ]
+  }
+},
+<span class="j-key">"stopReason"</span>: <span class="j-str">"end_turn"</span>,
+<span class="j-key">"usage"</span>: {
+  <span class="j-key">"inputTokens"</span>: <span class="j-num">142</span>,
+  <span class="j-key">"outputTokens"</span>: <span class="j-num">376</span>,
+  <span class="j-key">"totalTokens"</span>: <span class="j-num">518</span>
+}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Notification -->
+<div id="notif" class="notif success" style="display:none;"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let templates = [
+  {
+    id: 't1',
+    name: 'Article Summarizer',
+    desc: 'Summarizes any article with configurable length and tone',
+    model: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    system: 'You are a professional content editor specializing in concise summaries.',
+    prompt: 'Please summarize the following article about {{topic}}:\n\n{{article_text}}\n\nProvide a {{length}} summary in a {{tone}} tone.',
+    config: { maxTokens: 1000, temperature: 0.5, topP: 0.9, topK: 250 }
+  },
+  {
+    id: 't2',
+    name: 'Code Reviewer',
+    desc: 'Reviews code and provides structured feedback',
+    model: 'anthropic.claude-3-opus-20240229-v1:0',
+    system: 'You are a senior software engineer conducting thorough code reviews.',
+    prompt: 'Review the following {{language}} code and identify issues:\n\n```{{language}}\n{{code}}\n```\n\nFocus on: {{focus_areas}}',
+    config: { maxTokens: 2000, temperature: 0.3, topP: 0.95, topK: 300 }
+  },
+  {
+    id: 't3',
+    name: 'Product Description',
+    desc: 'Generates marketing copy for products',
+    model: 'anthropic.claude-3-haiku-20240307-v1:0',
+    system: 'You are a creative copywriter for an e-commerce platform.',
+    prompt: 'Write a compelling product description for {{product_name}}.\n\nKey features: {{features}}\nTarget audience: {{audience}}\nPrice point: {{price}}\n\nKeep it under 100 words.',
+    config: { maxTokens: 300, temperature: 0.9, topP: 0.95, topK: 350 }
+  }
+];
+
+let selectedTemplateId = null;
+let runCount = 0;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function extractVars(prompt) {
+  const matches = [...prompt.matchAll(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g)];
+  return [...new Set(matches.map(m => m[1]))];
+}
+
+function highlightVars(text) {
+  return text.replace(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g,
+    '<span class="highlight">{{$1}}</span>');
+}
+
+function notify(msg, type = 'success') {
+  const el = document.getElementById('notif');
+  el.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+  el.className = 'notif ' + type;
+  el.style.display = 'flex';
+  setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.style.display = 'none', 400); }, 2500);
+}
+
+function updateStats() {
+  const totalVars = templates.reduce((acc, t) => acc + extractVars(t.prompt).length, 0);
+  document.getElementById('statCount').textContent = templates.length;
+  document.getElementById('statVars').textContent = totalVars;
+  document.getElementById('statRuns').textContent = runCount;
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    const names = ['library', 'builder', 'runner', 'api'];
+    el.classList.toggle('active', names[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  if (tab === 'runner' || tab === 'api') populateSelects();
+  if (tab === 'library') renderTemplateList();
+}
+
+// ─── Library ─────────────────────────────────────────────────────────────────
+function renderTemplateList() {
+  const list = document.getElementById('templateList');
+  list.innerHTML = '';
+  if (templates.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><p>No templates yet</p></div>';
+    return;
+  }
+  templates.forEach(t => {
+    const vars = extractVars(t.prompt);
+    const div = document.createElement('div');
+    div.className = 'template-item' + (t.id === selectedTemplateId ? ' selected' : '');
+    div.onclick = () => selectTemplate(t.id);
+    div.innerHTML = `
+      <div class="template-item-name">${t.name}</div>
+      <div class="template-item-desc">${t.desc}</div>
+      <div class="template-item-tags">
+        ${vars.map(v => `<span class="var-tag">{{${v}}}</span>`).join('')}
+        <span class="badge badge-accent" style="font-size:10px;">${t.model.split('.')[0].toUpperCase()}</span>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function selectTemplate(id) {
+  selectedTemplateId = id;
+  renderTemplateList();
+  const t = templates.find(t => t.id === id);
+  const detail = document.getElementById('templateDetail');
+  const vars = extractVars(t.prompt);
+  detail.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h2>${t.name}</h2>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="editTemplate('${t.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTemplate('${t.id}')">Delete</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Description</label>
+          <p style="font-size:13px;color:var(--text);">${t.desc}</p>
+        </div>
+        <hr>
+        <div class="field">
+          <label>Model</label>
+          <span class="badge badge-accent">${t.model}</span>
+        </div>
+        ${t.system ? `<div class="field"><label>System Prompt</label><div class="template-preview" style="min-height:auto;">${t.system}</div></div>` : ''}
+        <div class="field">
+          <label>Prompt Template</label>
+          <div class="template-preview">${highlightVars(t.prompt)}</div>
+        </div>
+        <div class="field">
+          <label>Variables (${vars.length})</label>
+          <div>${vars.map(v => `<span class="var-tag">{{${v}}}</span>`).join('') || '<span style="color:var(--muted);font-size:12px;">No variables</span>'}</div>
+        </div>
+        <hr>
+        <div class="grid-3" style="margin-top:8px;">
+          <div><label>Max Tokens</label><span style="font-family:IBM Plex Mono;font-size:14px;color:var(--accent)">${t.config.maxTokens}</span></div>
+          <div><label>Temperature</label><span style="font-family:IBM Plex Mono;font-size:14px;color:var(--accent)">${t.config.temperature}</span></div>
+          <div><label>Top P</label><span style="font-family:IBM Plex Mono;font-size:14px;color:var(--accent)">${t.config.topP}</span></div>
+        </div>
+        <div class="mt-4">
+          <button class="btn btn-primary" onclick="goToRun('${t.id}')">▶ Run This Template</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function deleteTemplate(id) {
+  templates = templates.filter(t => t.id !== id);
+  selectedTemplateId = null;
+  document.getElementById('templateDetail').innerHTML = '<div class="empty"><div class="empty-icon">📄</div><p>Select a template to view details</p></div>';
+  renderTemplateList();
+  updateStats();
+  notify('Template deleted');
+}
+
+function editTemplate(id) {
+  const t = templates.find(t => t.id === id);
+  document.getElementById('bName').value = t.name;
+  document.getElementById('bDesc').value = t.desc;
+  document.getElementById('bModel').value = t.model;
+  document.getElementById('bSystem').value = t.system || '';
+  document.getElementById('bPrompt').value = t.prompt;
+  document.getElementById('bMaxTokens').value = t.config.maxTokens;
+  document.getElementById('bTemp').value = t.config.temperature;
+  document.getElementById('bTopP').value = t.config.topP;
+  document.getElementById('bTopK').value = t.config.topK;
+  switchTab('builder');
+  updatePreview();
+  // Mark for update
+  window._editingId = id;
+}
+
+function goToRun(id) {
+  switchTab('runner');
+  document.getElementById('runSelect').value = id;
+  loadRunTemplate();
+}
+
+// ─── Builder ──────────────────────────────────────────────────────────────────
+function updatePreview() {
+  const prompt = document.getElementById('bPrompt').value;
+  const vars = extractVars(prompt);
+
+  const varContainer = document.getElementById('detectedVars');
+  if (vars.length > 0) {
+    varContainer.innerHTML = vars.map(v => `<span class="var-tag">{{${v}}}</span>`).join('');
+  } else {
+    varContainer.innerHTML = '<p style="color:var(--muted);font-size:12px;">No variables detected yet</p>';
+  }
+
+  const preview = document.getElementById('livePreview');
+  if (prompt.trim()) {
+    preview.innerHTML = highlightVars(prompt);
+  } else {
+    preview.innerHTML = '<span style="color:var(--muted)">Your prompt will appear here...</span>';
+  }
+}
+
+function saveTemplate() {
+  const name = document.getElementById('bName').value.trim();
+  const prompt = document.getElementById('bPrompt').value.trim();
+
+  if (!name) { notify('Please enter a template name', 'error'); return; }
+  if (!prompt) { notify('Please enter a prompt template', 'error'); return; }
+
+  const t = {
+    id: window._editingId || 't' + Date.now(),
+    name,
+    desc: document.getElementById('bDesc').value.trim() || 'No description',
+    model: document.getElementById('bModel').value,
+    system: document.getElementById('bSystem').value.trim(),
+    prompt,
+    config: {
+      maxTokens: parseInt(document.getElementById('bMaxTokens').value),
+      temperature: parseFloat(document.getElementById('bTemp').value),
+      topP: parseFloat(document.getElementById('bTopP').value),
+      topK: parseInt(document.getElementById('bTopK').value)
+    }
+  };
+
+  if (window._editingId) {
+    const idx = templates.findIndex(x => x.id === window._editingId);
+    templates[idx] = t;
+    window._editingId = null;
+    notify('Template updated');
+  } else {
+    templates.push(t);
+    notify('Template saved');
+  }
+
+  updateStats();
+  clearBuilder();
+  switchTab('library');
+  renderTemplateList();
+}
+
+function clearBuilder() {
+  ['bName','bDesc','bSystem','bPrompt'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('bModel').value = 'anthropic.claude-3-sonnet-20240229-v1:0';
+  document.getElementById('bMaxTokens').value = '1000';
+  document.getElementById('bTemp').value = '0.7';
+  document.getElementById('bTopP').value = '0.9';
+  document.getElementById('bTopK').value = '250';
+  window._editingId = null;
+  updatePreview();
+}
+
+// ─── Runner ───────────────────────────────────────────────────────────────────
+function populateSelects() {
+  ['runSelect', 'apiSelect'].forEach(id => {
+    const sel = document.getElementById(id);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Select template...</option>' +
+      templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    if (cur) sel.value = cur;
+  });
+}
+
+function loadRunTemplate() {
+  const id = document.getElementById('runSelect').value;
+  const fields = document.getElementById('runVarFields');
+  const btn = document.getElementById('runBtn');
+
+  document.getElementById('resolvedPrompt').innerHTML = '<span style="color:var(--muted)">Fill in variables and run...</span>';
+  document.getElementById('outputBox').innerHTML = '<span class="placeholder">Output will appear after execution...</span>';
+  document.getElementById('runMeta').style.display = 'none';
+  document.getElementById('resolvedBadge').style.display = 'none';
+
+  if (!id) {
+    fields.innerHTML = '<div class="empty"><div class="empty-icon">⚡</div><p>Select a template above</p></div>';
+    btn.disabled = true;
+    return;
+  }
+
+  const t = templates.find(t => t.id === id);
+  const vars = extractVars(t.prompt);
+
+  if (vars.length === 0) {
+    fields.innerHTML = '<p style="color:var(--muted);font-size:12px;">This template has no variables.</p>';
+  } else {
+    fields.innerHTML = vars.map(v => `
+      <div class="field">
+        <label>{{${v}}}</label>
+        <textarea id="var_${v}" rows="2" placeholder="Enter value for ${v}..." oninput="resolvePromptPreview()"></textarea>
+      </div>
+    `).join('');
+  }
+  btn.disabled = false;
+  resolvePromptPreview();
+}
+
+function resolvePromptPreview() {
+  const id = document.getElementById('runSelect').value;
+  if (!id) return;
+  const t = templates.find(t => t.id === id);
+  const vars = extractVars(t.prompt);
+  let resolved = t.prompt;
+  vars.forEach(v => {
+    const el = document.getElementById('var_' + v);
+    const val = el ? el.value.trim() : '';
+    if (val) resolved = resolved.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), val);
+  });
+  document.getElementById('resolvedPrompt').innerHTML = highlightVars(resolved);
+  document.getElementById('resolvedBadge').style.display = 'inline-flex';
+}
+
+function runTemplate() {
+  const id = document.getElementById('runSelect').value;
+  if (!id) return;
+
+  const t = templates.find(t => t.id === id);
+  const vars = extractVars(t.prompt);
+  let resolved = t.prompt;
+
+  vars.forEach(v => {
+    const el = document.getElementById('var_' + v);
+    const val = el ? el.value.trim() : `[${v}]`;
+    resolved = resolved.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), val || `[${v}]`);
+  });
+
+  document.getElementById('resolvedPrompt').innerHTML = resolved;
+  document.getElementById('outputBox').innerHTML = '<span class="spinner"></span> Calling model...';
+  document.getElementById('runStatus').style.display = 'inline-flex';
+  document.getElementById('runMeta').style.display = 'none';
+  document.getElementById('runBtn').disabled = true;
+
+  // Simulate model response
+  const mockResponses = {
+    't1': `**Summary:**\n\nThis article provides an in-depth overview of the subject, covering key developments, challenges, and opportunities. The author presents a well-structured analysis supported by recent data and expert commentary.\n\nKey takeaways include the growing importance of the topic in modern contexts, the need for adaptive strategies, and the potential long-term implications for industry stakeholders.`,
+    't2': `**Code Review Feedback:**\n\n✅ **Strengths:** Clean structure and good separation of concerns.\n\n⚠️ **Issues Found:**\n1. Line 12: Potential null reference — add null check before accessing property\n2. Line 24: Magic number — define as named constant\n3. Line 38: Missing error handling in async call\n\n📋 **Recommendations:** Add unit tests for edge cases. Consider extracting repeated logic into a utility function.`,
+    't3': `**Elevate Your Everyday.**\n\nMeet the product that redefines what you expect. Engineered for performance, designed for life — this isn't just a purchase, it's an upgrade. Perfect for the modern professional who demands more. Grab yours before it's gone.`
+  };
+
+  const delay = 1200 + Math.random() * 800;
+  const startTime = Date.now();
+
+  setTimeout(() => {
+    const response = mockResponses[id] || `This is a simulated response from **${t.model}**.\n\nYour resolved prompt was:\n\n"${resolved.slice(0, 80)}..."\n\nIn production, this would return the actual model output via the Amazon Bedrock Converse API.`;
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    const tokens = Math.floor(resolved.length / 4 + Math.random() * 200);
+
+    document.getElementById('outputBox').textContent = response;
+    document.getElementById('runStatus').style.display = 'none';
+    document.getElementById('runMeta').style.display = 'block';
+    document.getElementById('runMetaText').textContent = `${elapsed}s · ~${tokens} tokens · ${t.model}`;
+    document.getElementById('runBtn').disabled = false;
+
+    runCount++;
+    updateStats();
+    notify('Execution complete');
+  }, delay);
+}
+
+// ─── API View ─────────────────────────────────────────────────────────────────
+function updateApiView() {
+  const id = document.getElementById('apiSelect').value;
+  if (!id) {
+    document.getElementById('apiPython').textContent = 'Select a template to see the API request.';
+    document.getElementById('apiJson').textContent = 'Select a template to see the JSON payload.';
+    return;
+  }
+  const t = templates.find(t => t.id === id);
+  const vars = extractVars(t.prompt);
+
+  const sampleVals = {};
+  vars.forEach(v => sampleVals[v] = `<${v} value>`);
+
+  let resolvedPrompt = t.prompt;
+  vars.forEach(v => {
+    resolvedPrompt = resolvedPrompt.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), `{${v}}`);
+  });
+
+  const python = `import boto3
+import json
+
+client = boto3.client(
+    "bedrock-runtime",
+    region_name="us-east-1"
+)
+
+# Template variables
+variables = {
+${vars.map(v => `    "${v}": "${v} value",`).join('\n')}
+}
+
+# Resolve prompt template
+prompt_template = """${t.prompt}"""
+resolved = prompt_template.format(**variables)
+
+# Build request
+request = {
+    "modelId": "${t.model}",
+    "messages": [
+        {
+            "role": "user",
+            "content": [{"text": resolved}]
+        }
+    ],
+    "inferenceConfig": {
+        "maxTokens": ${t.config.maxTokens},
+        "temperature": ${t.config.temperature},
+        "topP": ${t.config.topP},
+    }
+${t.system ? `    # system=[{"text": "${t.system}"}],` : ''}
+}
+
+# Invoke model
+response = client.converse(**request)
+output = response["output"]["message"]["content"][0]["text"]
+print(output)`;
+
+  const jsonPayload = {
+    modelId: t.model,
+    messages: [{ role: "user", content: [{ text: resolvedPrompt }] }],
+    inferenceConfig: {
+      maxTokens: t.config.maxTokens,
+      temperature: t.config.temperature,
+      topP: t.config.topP
+    },
+    ...(t.system ? { system: [{ text: t.system }] } : {})
+  };
+
+  document.getElementById('apiPython').textContent = python;
+  document.getElementById('apiJson').innerHTML = syntaxHighlightJson(JSON.stringify(jsonPayload, null, 2));
+}
+
+function syntaxHighlightJson(json) {
+  return json
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+      let cls = 'j-num';
+      if (/^"/.test(match)) {
+        cls = /:$/.test(match) ? 'j-key' : 'j-str';
+      } else if (/true|false/.test(match)) {
+        cls = 'j-bool';
+      } else if (/null/.test(match)) {
+        cls = 'j-null';
+      }
+      return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+renderTemplateList();
+updateStats();
+populateSelects();
+</script>
+</body>
+</html>
