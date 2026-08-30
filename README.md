@@ -107,6 +107,11 @@ Open any module notebook in Jupyter:
 jupyter notebook module2.ipynb
 ```
 
+Notebooks in git are source-only (no cell outputs). After a demo run, clear outputs before committing:
+```bash
+python3 scripts/strip_notebook_outputs.py
+```
+
 ### Key Examples
 
 **Invoke a model:**
